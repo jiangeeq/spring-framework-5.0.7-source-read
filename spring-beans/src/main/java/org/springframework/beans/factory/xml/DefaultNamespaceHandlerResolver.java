@@ -116,6 +116,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	@Nullable
 	public NamespaceHandler resolve(String namespaceUri) {
 		// 读取spring所有工程的META-INF/spring.handlers文件，获取namespaceUri和NamespaceHandler的映射关系
+		// 这些类都继承了 NamespaceHandlerSupport 实现了init方法 在init方法中进行 BeanDefinitionParse 的注册
 		Map<String, Object> handlerMappings = getHandlerMappings();
 		// 获取 指定namespaceUri对应的namespaceHandler
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);

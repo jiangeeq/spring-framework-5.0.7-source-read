@@ -58,7 +58,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 
 	/**
 	 * Create a new AbstractXmlApplicationContext with the given parent context.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent context
 	 */
@@ -75,7 +75,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 
 	/**
 	 * Loads the bean definitions via an XmlBeanDefinitionReader.
-	 * 
+	 *
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 	 * @see #initBeanDefinitionReader
 	 * @see #loadBeanDefinitions
@@ -89,13 +89,14 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
+		// 容器应用上下文对象自身 也是 一个 ResourceLoader 类型
 		beanDefinitionReader.setResourceLoader(this);
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
-	
+
 		// 委托给BeanDefinition阅读器去加载BeanDefinition
 		loadBeanDefinitions(beanDefinitionReader);
 	}
@@ -106,7 +107,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * <p>
 	 * Can be overridden in subclasses, e.g. for turning off XML validation or using
 	 * a different XmlBeanDefinitionParser implementation.
-	 * 
+	 *
 	 * @param reader
 	 *            the bean definition reader used by this context
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
@@ -121,7 +122,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * The lifecycle of the bean factory is handled by the
 	 * {@link #refreshBeanFactory} method; hence this method is just supposed to
 	 * load and/or register bean definitions.
-	 * 
+	 *
 	 * @param reader
 	 *            the XmlBeanDefinitionReader to use
 	 * @throws BeansException
@@ -157,7 +158,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * <p>
 	 * The default implementation returns {@code null}. Subclasses can override this
 	 * to provide pre-built Resource objects rather than location Strings.
-	 * 
+	 *
 	 * @return an array of Resource objects, or {@code null} if none
 	 * @see #getConfigLocations()
 	 */

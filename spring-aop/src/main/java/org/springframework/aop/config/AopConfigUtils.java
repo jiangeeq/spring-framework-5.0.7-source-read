@@ -120,12 +120,15 @@ public abstract class AopConfigUtils {
 	@Nullable
 	private static BeanDefinition registerOrEscalateApcAsRequired(Class<?> cls, BeanDefinitionRegistry registry,
 			@Nullable Object source) {
-
+		/**
+		 * 先判断一下是否已经注册，如果已经注册，则判断优先级，如果已注册优先级高则直接结束，反之直接创建RootBeanDefinition，
+		 * 通过调用DefaultListableBeanFactory的registerBeanDefinition方法进行bean注册。
+		 */
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 
-		// 判断是否BeanDefinitionRegistry中是否有internalAutoProxyCreator对应的BeanDefinition 
+		// 判断是否BeanDefinitionRegistry中是否有internalAutoProxyCreator对应的BeanDefinition
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
-			// 获取internalAutoProxyCreator对应的BeanDefinition 
+			// 获取internalAutoProxyCreator对应的BeanDefinition
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			// 如果internalAutoProxyCreator对应的Bean的类名和第一个入参不一样，且考虑是否需要完成覆盖
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {

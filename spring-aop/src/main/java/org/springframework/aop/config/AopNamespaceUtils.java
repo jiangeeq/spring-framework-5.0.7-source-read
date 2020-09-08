@@ -74,10 +74,12 @@ public abstract class AopNamespaceUtils {
 
 	public static void registerAspectJAnnotationAutoProxyCreatorIfNecessary(
 			ParserContext parserContext, Element sourceElement) {
-
+		// 注册 AnnotationAwareAspectJAutoProxyCreator
 		BeanDefinition beanDefinition = AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(
 				parserContext.getRegistry(), parserContext.extractSource(sourceElement));
+		// 处理 proxy-target-class 和  expose-proxy属性
 		useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
+		// 注册 BeanComponentDefinition
 		registerComponentIfNecessary(beanDefinition, parserContext);
 	}
 
@@ -88,7 +90,10 @@ public abstract class AopNamespaceUtils {
 			if (proxyTargetClass) {
 				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 			}
-			// 是否暴露最终的代理
+			// 是否暴露最终的代理 其作用是实现 目标对象内部方法调用可实现切面的增强
+			/** 例如 例如 A类中 c方法 调用 A类中的 d方法是无法实时切面增强的，需要设置 <aop:aspectj-autoproxy expose-proxy="true"/>
+			 * 例如 d 方法 有 @Transaction 注解则失效, 可以使用 ((A)AopContext.currentProxy()).b() 调用方式。
+			 */
 			boolean exposeProxy = Boolean.parseBoolean(sourceElement.getAttribute(EXPOSE_PROXY_ATTRIBUTE));
 			if (exposeProxy) {
 				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);

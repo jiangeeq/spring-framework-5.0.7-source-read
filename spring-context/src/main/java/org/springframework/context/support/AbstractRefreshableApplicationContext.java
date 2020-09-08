@@ -130,6 +130,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		try {
        		// 创建IoC容器，也就是DefaultListableBeanFactory
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			// 设置 BeanFactory 的序列id
 			beanFactory.setSerializationId(getId());
 			// 设置工厂的属性：是否允许BeanDefinition覆盖和是否允许循环依赖
 			customizeBeanFactory(beanFactory);
@@ -207,6 +208,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
 	 */
 	protected DefaultListableBeanFactory createBeanFactory() {
+		// getInternalParentBeanFactory()获取容器应用上下文下文对象, 此时里面的getParent()为null，
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());
 	}
 
