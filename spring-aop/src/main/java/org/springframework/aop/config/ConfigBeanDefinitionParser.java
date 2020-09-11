@@ -115,8 +115,8 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			// 获取子标签的节点名称或者叫元素名称
 			String localName = parserContext.getDelegate().getLocalName(elt);
 			if (POINTCUT.equals(localName)) {
-				// 解析<aop:pointcut>标签 
-				// 产生一个AspectJExpressionPointcut的BeanDefinition对象，并注册
+				// 解析<aop:pointcut>标签
+				// 产生一个AspectJExpressionPointcut的BeanDefinition对象，并注册,这个AspectJExpressionPointcut用来解析我们的切入点表达式
 				parsePointcut(elt, parserContext);
 			}
 			else if (ADVISOR.equals(localName)) {
@@ -130,7 +130,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 				// aop:after等标签对应5个BeanDefinition对象
 				// aop:after标签的method属性对应1个BeanDefinition对象
 				// 最终的AspectJPointcutAdvisor BeanDefinition类
-				
+
 				parseAspect(elt, parserContext);
 			}
 		}
@@ -240,7 +240,7 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 			// We have to parse "advice" and all the advice kinds in one loop, to get the
 			// ordering semantics right.
-			
+
 			// 获取<aop:aspect>标签的所有子标签
 			NodeList nodeList = aspectElement.getChildNodes();
 			boolean adviceFoundAlready = false;
@@ -358,27 +358,27 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 			this.parseState.push(new AdviceEntry(parserContext.getDelegate().getLocalName(adviceElement)));
 
 			// create the method factory bean
-			// 创建方法工厂Bean的BeanDefinition对象：用于获取Advice增强类的Method对象
+			// 创建方法工厂Bean的BeanDefinition对象：用于获取Advice增强类的Method对象, <aop:brefore method="before">中的method
 			RootBeanDefinition methodDefinition = new RootBeanDefinition(MethodLocatingFactoryBean.class);
-			// 设置MethodLocatingFactoryBean的targetBeanName为advice类的引用名称
+			// 设置MethodLocatingFactoryBean的targetBeanName为advice类的引用名称，也就是<aop:aspect ref="myAdvice">中的myAdvice
 			methodDefinition.getPropertyValues().add("targetBeanName", aspectName);
-			// 设置MethodLocatingFactoryBean的methodName为<aop:after>标签的method属性值（也就是advice方法名称）
+			// 设置MethodLocatingFactoryBean的methodName为<aop:after>标签的method属性值（也就是method="before"中的before，作为advice方法名称）
 			methodDefinition.getPropertyValues().add("methodName", adviceElement.getAttribute("method"));
 			methodDefinition.setSynthetic(true);
 
 			// create instance factory definition
-			// 创建实例工厂BeanDefinition：用于创建增强类的实例
+			// 创建实例工厂BeanDefinition：用于创建增强类的实例,也就是<aop:aspect ref="myAdvice">中的myAdvice
 			RootBeanDefinition aspectFactoryDef =
 					new RootBeanDefinition(SimpleBeanFactoryAwareAspectInstanceFactory.class);
 			// 设置SimpleBeanFactoryAwareAspectInstanceFactory的aspectBeanName为advice类的引用名称
 			aspectFactoryDef.getPropertyValues().add("aspectBeanName", aspectName);
 			aspectFactoryDef.setSynthetic(true);
-			
+
 			//以上的两个BeanDefinition的作用主要是通过反射调用Advice对象的指定方法
 			// method.invoke(obj,args)
 
 			// register the pointcut
-			// 通知增强类的BeanDefinition对象（核心）
+			// 通知增强类的BeanDefinition对象（核心），也就是一个<aop:before>等对应一个adviceDef
 			AbstractBeanDefinition adviceDef = createAdviceDefinition(
 					adviceElement, parserContext, aspectName, order, methodDefinition, aspectFactoryDef,
 					beanDefinitions, beanReferences);

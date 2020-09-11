@@ -47,25 +47,37 @@ import org.springframework.lang.Nullable;
 @SuppressWarnings("serial")
 public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializable {
 
+	// advice适配器注册中心
+	// MethodBeforeAdviceAdapter:将Advisor适配成MethodBeforeAdvice
+	// AfterReturningAdviceAdapter:将Advisor适配成AfterReturningAdvice
+	// ThrowsAdviceAdapter: 将Advisor适配成ThrowsAdvice
 	@Override
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(
 			Advised config, Method method, @Nullable Class<?> targetClass) {
 
 		// This is somewhat tricky... We have to process introductions first,
 		// but we need to preserve order in the ultimate list.
+		// 返回值集合，里面装的都是Interceptor或者它的子类接口MethodInterceptor
 		List<Object> interceptorList = new ArrayList<>(config.getAdvisors().length);
+		// 获取目标类的类型
 		Class<?> actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());
 		boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);
+		// 创建DefaultAdvisorAdapterRegistry实例
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
+		// 去产生代理对象的过程中，针对该目标方法获取到的所有合适的Advisor集合
 		for (Advisor advisor : config.getAdvisors()) {
 			if (advisor instanceof PointcutAdvisor) {
 				// Add it conditionally.
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
+				// 如果该Advisor可以对目标类进行增强，则进行后续操作
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
+					// 获取方法适配器，该方法匹配器可以根据指定的切入点表达式进行方法匹配
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
+					// 使用Pointcut().getMethodMatcher()进行匹配，如果匹配上则将advisor转成MethodInterceptor
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
+						// 需要根据参数动态匹配（比如重载）
 						if (mm.isRuntime()) {
 							// Creating a new object instance in the getInterceptors() method
 							// isn't a problem as we normally cache created chains.
@@ -81,6 +93,7 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 			}
 			else if (advisor instanceof IntroductionAdvisor) {
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
+				// 使用Pointcut类的ClassFilter().matches()进行匹配, 如果匹配上则将advisor转成MethodInterceptor
 				if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
 					Interceptor[] interceptors = registry.getInterceptors(advisor);
 					interceptorList.addAll(Arrays.asList(interceptors));

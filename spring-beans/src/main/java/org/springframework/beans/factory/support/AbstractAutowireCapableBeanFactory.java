@@ -471,6 +471,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (logger.isDebugEnabled()) {
 			logger.debug("Creating instance of bean '" + beanName + "'");
 		}
+		// 解析获得bean对应的class对象
 		RootBeanDefinition mbdToUse = mbd;
 
 		// Make sure bean class is actually resolved at this point, and
@@ -1055,11 +1056,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Nullable
 	protected Object resolveBeforeInstantiation(String beanName, RootBeanDefinition mbd) {
 		Object bean = null;
+		// 当我们通过后置处理器生成了bean对象的时候, 就会把beanDefinition中设置该变量为true
 		if (!Boolean.FALSE.equals(mbd.beforeInstantiationResolved)) {
 			// Make sure bean class is actually resolved at this point.
+			// 如果bean不是合成的, 即由应用程序自己生成的, 并且有InstantiationAwareBeanPostProcessor
+			// 后置处理器在容器中, 那么就会开始调用后置处理器
 			if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 				Class<?> targetType = determineTargetType(beanName, mbd);
 				if (targetType != null) {
+					// 开始调用后置处理器的before方法, 如果该方法返回了一个对象, 那么说明创建了bean对象, 此时
+					// 才会去调用after方法, 由上面的结论可以得知, Spring在这里是不会创建bean对象的, 换句话说,
+					// after方法通常情况下是不会被调用的, 当我们自己实现了后置处理器并编写了代理逻辑的时候,
+					// 才会调用到after方法
 					bean = applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
 					if (bean != null) {
 						bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
